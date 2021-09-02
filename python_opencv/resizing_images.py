@@ -17,9 +17,10 @@ def dec_int(input_im):
         decreased_im = decrease_im_size(input_im)
         increased_im = increase_im_size(decreased_im)
 
-    cv.imshow('Original', input_im)
-    cv.imshow('Shrinked', decreased_im)
-    cv.imshow('Interpolated', increased_im)
+    cv.imshow('Decimated Reduction', decreased_im)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    cv.imshow('Decimated Interpolation', increased_im)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -133,8 +134,7 @@ def edge_improv(input_im, imp_type):
 
     improved_im = cv.add(input_im, out_im)
 
-    cv.imshow('Original', input_im)
-    cv.imshow('Laplacian {}'.format(laplacian), improved_im)
+    cv.imshow('Laplacian : {}'.format(laplacian), improved_im)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -153,7 +153,6 @@ def average_improv(input_im, num):
     edges_im = cv.subtract(input_im, filtered_im)
     improved_im = cv.add(input_im, edges_im)
 
-    cv.imshow('Original', input_im)
     cv.imshow('Dif Average filter - Factor {}'.format(num), improved_im)
     cv.waitKey(0)
     cv.destroyAllWindows()
@@ -181,9 +180,12 @@ def cv_interpolation(input_im):
     decreased_im = bicubic_decrease(input_im)
     increased_im = bicubic_increase(decreased_im)
 
-    cv.imshow('Original', input_im)
-    cv.imshow('Shrinked', decreased_im)
-    cv.imshow('Interpolated', increased_im)
+    cv.imshow('Bicubic Reduction', decreased_im)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    cv.imshow('Bicubic Interpolation', increased_im)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
     cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -191,8 +193,7 @@ def cv_interpolation(input_im):
 def gamma_correction(input_im, gamma):
     equalized_im = np.uint8(pow((input_im / 255), gamma) * 255)
 
-    cv.imshow('Original', input_im)
-    cv.imshow(' gamma: {}'.format(gamma), equalized_im)
+    cv.imshow(' Gamma Correction factor: {}'.format(gamma), equalized_im)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
@@ -208,7 +209,6 @@ def histogram_equalization(input_im):
     else:
         histogram_equalized_im = cv.equalizeHist(input_im)
 
-    cv.imshow('Original', input_im)
     cv.imshow('Histogram Equalization', histogram_equalized_im)
     cv.waitKey(0)
     cv.destroyAllWindows()
@@ -231,9 +231,23 @@ def histogram_plot(input_im):
 
 def im_calculate_CDF(input_im):
     if not is_gray(input_im):
-        return
+        r, g, b = cv.split(input_im)
+
+        count, bins_count = np.histogram(input_im, bins=255)
+        pdf = count / sum(count)
+        cdf1 = np.cumsum(pdf)
+
+        count2, bins_count = np.histogram(input_im, bins=255)
+        pdf = count2 / sum(count2)
+        cdf2 = np.cumsum(pdf)
+
+        count3, bins_count = np.histogram(input_im, bins=255)
+        pdf = count3 / sum(count3)
+        cdf3 = np.cumsum(pdf)
+
+        cdf = (cdf1 + cdf2 + cdf3) / 3
     else:
-        count, bins_count = np.histogram(input_im, bins=10)
+        count, bins_count = np.histogram(input_im, bins=255)
         pdf = count / sum(count)
         cdf = np.cumsum(pdf)
 
@@ -242,8 +256,20 @@ def im_calculate_CDF(input_im):
     plt.show()
 
 
+def gaussian_smoothing(input_im, size, sigma):
+    smooth_image = cv.GaussianBlur(input_im, (size, size), sigma)
+
+    cv.imshow(f'Smooth image - Sigma: {sigma} - gaussian_size: {size}x{size}', smooth_image)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    return smooth_image
+
+
 def Prog1():
     im = cv.imread('test80.jpg')
+    cv.imshow('Original', im)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
     cv_interpolation(im)
     dec_int(im)
     average_improv(im, 5)
@@ -251,16 +277,54 @@ def Prog1():
 
 
 def Prog2():
-    im = cv.imread('test80.jpg')
-    gamma_correction(im, 1.5)
-    gamma_correction(im, 3.0)
-    gamma_correction(im, 6.0)
-    gamma_correction(im, 0.75)
-    gamma_correction(im, 0.5)
-    gamma_correction(im, 0.25)
-    histogram_equalization(im)
-    histogram_plot(im)
-    im_calculate_CDF(im)
+    im1 = cv.imread('car.png', 0)
+    im2 = cv.imread('crowd.png', 0)
+    im3 = cv.imread('university.png', 0)
+    cv.imshow('Original', im1)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    gamma_correction(im1, 1.5)
+    gamma_correction(im1, 3.0)
+    gamma_correction(im1, 6.0)
+    gamma_correction(im1, 0.75)
+    gamma_correction(im1, 0.5)
+    gamma_correction(im1, 0.25)
+    histogram_equalization(im1)
+    histogram_plot(im1)
+
+    cv.imshow('Original', im2)
+    gamma_correction(im2, 1.5)
+    gamma_correction(im2, 3.0)
+    gamma_correction(im2, 6.0)
+    gamma_correction(im2, 0.75)
+    gamma_correction(im2, 0.5)
+    gamma_correction(im2, 0.25)
+    histogram_equalization(im2)
+    histogram_plot(im2)
+
+    cv.imshow('Original', im3)
+    gamma_correction(im3, 1.5)
+    gamma_correction(im3, 3.0)
+    gamma_correction(im3, 6.0)
+    gamma_correction(im3, 0.75)
+    gamma_correction(im3, 0.5)
+    gamma_correction(im3, 0.25)
+    histogram_equalization(im3)
+    histogram_plot(im3)
+
+    im_calculate_CDF(im1)
+
+
+def Prog3():
+    im = cv.imread('Image1.pgm')
+    cv.imshow('Original', im)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+    edge_improv(im, 1)
+    smooth_image = gaussian_smoothing(im, 3, 0.5)
+    edge_improv(smooth_image, 1)
+    smooth_image2 = gaussian_smoothing(im, 3, 1.0)
+    edge_improv(smooth_image2, 1)
 
 
 def Menu():
@@ -286,6 +350,15 @@ def Menu():
     button_2.pack(side=tk.LEFT)
     button_2.pack(expand=10)
 
+    button_2 = tk.Button(frame,
+                         text="Prog3",
+                         height=2,
+                         width=10,
+                         fg="purple",
+                         command=Prog3)
+    button_2.pack(side=tk.LEFT)
+    button_2.pack(expand=10)
+
     button_3 = tk.Button(frame,
                          text="Quit",
                          height=2,
@@ -299,6 +372,3 @@ def Menu():
 
 
 Menu()
-
-cv.waitKey(0)
-cv.destroyAllWindows()
