@@ -24,4 +24,7 @@ gamma1 = 0
 gamma2 = 7.1
 
 q = -c * (-1 / alpha2 + 1 / alpha1) * (beta2 - beta1) * (gamma2 - gamma1)
+
+print("Error:", c)
+print("Value that i got:", q)
 print("Abs:", mt.sqrt(pow(q, 2)))
